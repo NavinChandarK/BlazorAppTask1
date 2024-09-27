@@ -1,0 +1,89 @@
+﻿@page "/Task1"
+@using BlazorAppTask1.Model
+<PageTitle>Task1</PageTitle>
+
+<h3 class="text-center" style="font-family:Bahnschrift">To Do List</h3>
+<style>
+.completed {
+    text-decoration: line-through;
+    color: gray;
+}
+</style>
+<div class="mb-3">
+    <input type="text" @bind="ToDoList" class="form-control" placeholder="Enter New Item" />
+    <button class="btn btn-primary mt-2" @onclick="AddToDo">Add List</button>
+</div>
+
+<table class="table table-striped" style="font-family:Bahnschrift; border:solid 1px;">
+    <thead>
+        <tr>
+            <th scope="col">Completed</th>
+            <th scope="col">Description</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in lists)
+        {
+            <tr class="@GetList(item)">
+                <td>
+                    <input type="checkbox" @bind="item.IsCompleted" />
+                </td>
+                <td>
+                    @if (item.IsEditing)
+                    {
+                        <input type="text" @bind="item.Description" @onblur="() => Save(item)" class="form-control" disabled="@item.IsCompleted" />
+                        <button class="btn btn-success btn-sm pt-2" @onclick="() => Save(item)"> Save </button>
+                    }
+                    else
+                    {
+                        <span class="@GetEditList(item)" @onclick="() => Edit(item)" disabled="@item.IsCompleted" title="Click to Edit Description" >@item.Description</span>
+                        @* <button class="btn btn-warning btn-sm" @onclick="() => Edit(item)" disabled="@item.IsCompleted"> Edit </button> *@
+                    }
+                </td>
+                <td>
+                    <button class="btn btn-danger btn-sm" @onclick="() => Delete(item)" disabled="@item.IsCompleted"> Delete </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+    </table>
+
+@code {
+    private string? ToDoList { get; set; }
+    private List<ToDoList> lists = new List<ToDoList>();
+
+    private void AddToDo()
+    {
+        if (!string.IsNullOrWhiteSpace(ToDoList))
+        {
+            lists.Add(new ToDoList { Description = ToDoList });
+            ToDoList = string.Empty;
+        }
+    }
+
+    private void Save(ToDoList item)
+    {
+        item.IsEditing = false;
+    }
+
+    private void Edit(ToDoList item)
+    {
+        item.IsEditing = true;
+    }
+
+    private void Delete(ToDoList item)
+    {
+        lists.Remove(item);
+    }
+
+    private string GetList(ToDoList item)
+    {
+        return item.IsCompleted ? "table-secondary" : "";
+    }
+    private string GetEditList(ToDoList item)
+    {
+        return item.IsCompleted ? "completed" : "";
+    }
+
+}
